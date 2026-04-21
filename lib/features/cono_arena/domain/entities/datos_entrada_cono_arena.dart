@@ -22,5 +22,6 @@ class DatosEntradaConoArena {
     required this.densidadArena,
     required this.pesoHumedo,
     required this.pesoSeco,
+    required this.humedad,
   });
 }

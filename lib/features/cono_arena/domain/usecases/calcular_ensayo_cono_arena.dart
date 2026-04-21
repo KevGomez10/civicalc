@@ -76,4 +76,4 @@ class CalcularEnsayoConoArena {
       densidad: densidad,
     );
   }
-}1l
+}
