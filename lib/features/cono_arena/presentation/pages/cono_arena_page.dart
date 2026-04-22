@@ -10,7 +10,6 @@ class ConoArenaPage extends StatefulWidget {
 }
 
 class _ConoArenaPageState extends State<ConoArenaPage> {
-
   final _formKey = GlobalKey<FormState>();
 
   // Controllers
@@ -24,6 +23,7 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
   double densidadArena = 1.458;
 
   String resultado = "";
+  bool hayResultado = false;
 
   void calcular() {
     try {
@@ -36,7 +36,7 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
         constanteCono: constanteCono,
         densidadArena: densidadArena,
         pesoHumedo: double.parse(pesoHumedoController.text),
-        pesoSeco: 0, // no se usa en tu flujo real
+        pesoSeco: 0,
         humedad: double.parse(humedadController.text),
       );
 
@@ -44,17 +44,19 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
       final res = usecase.ejecutar(datos);
 
       setState(() {
+        hayResultado = true;
         resultado = """
-🔹 Arena usada: ${res.arenaUsada.toStringAsFixed(2)}
-🔹 Arena en hueco: ${res.arenaHueco.toStringAsFixed(2)}
-🔹 Volumen: ${res.volumen.toStringAsFixed(2)}
-🔹 Densidad: ${res.densidad.toStringAsFixed(3)}
+🔹 Arena usada: ${res.arenaUsada.toStringAsFixed(2)} g
+🔹 Arena en hueco: ${res.arenaHueco.toStringAsFixed(2)} g
+🔹 Volumen: ${res.volumen.toStringAsFixed(2)} cm³
+🔹 Densidad: ${res.densidad.toStringAsFixed(3)} g/cm³
 """;
       });
 
     } catch (e) {
       setState(() {
-        resultado = "❌ Error: $e";
+        hayResultado = true;
+        resultado = "❌ Error: ${e.toString()}";
       });
     }
   }
@@ -64,7 +66,7 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: TextFormField(
         controller: controller,
-        keyboardType: TextInputType.number,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
         decoration: InputDecoration(
           labelText: label,
           border: const OutlineInputBorder(),
@@ -73,8 +75,34 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
           if (value == null || value.isEmpty) {
             return 'Campo obligatorio';
           }
+
+          final numero = double.tryParse(value);
+          if (numero == null) {
+            return 'Debe ser un número válido';
+          }
+
+          if (numero < 0) {
+            return 'No puede ser negativo';
+          }
+
           return null;
         },
+      ),
+    );
+  }
+
+  Widget tarjetaResultado() {
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Text(
+          resultado,
+          style: const TextStyle(fontSize: 16),
+        ),
       ),
     );
   }
@@ -110,10 +138,7 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
 
               const SizedBox(height: 20),
 
-              Text(
-                resultado,
-                style: const TextStyle(fontSize: 16),
-              ),
+              if (hayResultado) tarjetaResultado(),
 
             ],
           ),
