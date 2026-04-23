@@ -185,9 +185,9 @@ Widget build(BuildContext context) {
               Navigator.push(
                 context,
                 PageRouteBuilder(
-                  pageBuilder: (_, __, ___) =>
+                  pageBuilder: (_, _, _) =>
                       HistorialPage(historial: historial),
-                  transitionsBuilder: (_, animation, __, child) {
+                  transitionsBuilder: (_, animation, _, child) {
                     return FadeTransition(
                       opacity: animation,
                       child: child,
@@ -271,24 +271,24 @@ Widget build(BuildContext context) {
                             calcular();
                           },
                           style: ButtonStyle(
-                            padding: MaterialStateProperty.all(
+                            padding: WidgetStateProperty.all(
                               const EdgeInsets.symmetric(vertical: 16),
                             ),
                             backgroundColor:
-                                MaterialStateProperty.all(Colors.blue),
-                            shape: MaterialStateProperty.all(
+                                WidgetStateProperty.all(Colors.blue),
+                            shape: WidgetStateProperty.all(
                               RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
                             ),
                             elevation:
-                                MaterialStateProperty.all(4),
+                                WidgetStateProperty.all(4),
                             shadowColor:
-                                MaterialStateProperty.all(
+                                WidgetStateProperty.all(
                               Colors.blue.withOpacity(0.4),
                             ),
                             overlayColor:
-                                MaterialStateProperty.all(
+                                WidgetStateProperty.all(
                               Colors.white.withOpacity(0.1),
                             ),
                           ),
