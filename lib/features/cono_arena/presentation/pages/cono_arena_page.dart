@@ -1,152 +1,3 @@
-import 'package:flutter/material.dart';
-import '../../domain/entities/datos_entrada_cono_arena.dart';
-import '../../domain/usecases/calcular_ensayo_cono_arena.dart';
-
-class ConoArenaPage extends StatefulWidget {
-  const ConoArenaPage({super.key});
-
-  @override
-  State<ConoArenaPage> createState() => _ConoArenaPageState();
-}
-
-class _ConoArenaPageState extends State<ConoArenaPage> {
-  final _formKey = GlobalKey<FormState>();
-
-  // Controllers
-  final pesoInicialController = TextEditingController();
-  final pesoFinalController = TextEditingController();
-  final pesoHumedoController = TextEditingController();
-  final humedadController = TextEditingController();
-
-  // Configuración (luego será editable)
-  double constanteCono = 1603;
-  double densidadArena = 1.458;
-
-  String resultado = "";
-  bool hayResultado = false;
-
-  void calcular() {
-    try {
-      final datos = DatosEntradaConoArena(
-        abscisa: "K1+000",
-        capa: "1",
-        costado: "Derecho",
-        pesoInicial: double.parse(pesoInicialController.text),
-        pesoFinal: double.parse(pesoFinalController.text),
-        constanteCono: constanteCono,
-        densidadArena: densidadArena,
-        pesoHumedo: double.parse(pesoHumedoController.text),
-        pesoSeco: 0,
-        humedad: double.parse(humedadController.text),
-      );
-
-      final usecase = CalcularEnsayoConoArena();
-      final res = usecase.ejecutar(datos);
-
-      setState(() {
-        hayResultado = true;
-        resultado = """
-🔹 Arena usada: ${res.arenaUsada.toStringAsFixed(2)} g
-🔹 Arena en hueco: ${res.arenaHueco.toStringAsFixed(2)} g
-🔹 Volumen: ${res.volumen.toStringAsFixed(2)} cm³
-🔹 Densidad: ${res.densidad.toStringAsFixed(3)} g/cm³
-""";
-      });
-
-    } catch (e) {
-      setState(() {
-        hayResultado = true;
-        resultado = "❌ Error: ${e.toString()}";
-      });
-    }
-  }
-
-  Widget campo(String label, TextEditingController controller) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-        ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Campo obligatorio';
-          }
-
-          final numero = double.tryParse(value);
-          if (numero == null) {
-            return 'Debe ser un número válido';
-          }
-
-          if (numero < 0) {
-            return 'No puede ser negativo';
-          }
-
-          return null;
-        },
-      ),
-    );
-  }
-
-  Widget tarjetaResultado() {
-    return Card(
-      elevation: 5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Text(
-          resultado,
-          style: const TextStyle(fontSize: 16),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Ensayo Cono y Arena'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-
-              campo("Peso frasco + arena inicial (g)", pesoInicialController),
-              campo("Peso frasco + arena restante (g)", pesoFinalController),
-              campo("Peso material húmedo (g)", pesoHumedoController),
-              campo("Humedad (%)", humedadController),
-
-              const SizedBox(height: 20),
-
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    calcular();
-                  }
-                },
-                child: const Text("Calcular"),
-              ),
-
-              const SizedBox(height: 20),
-
-              if (hayResultado) tarjetaResultado(),
-
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 import 'package:civicalc/features/cono_arena/presentation/pages/historial_page.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -308,228 +159,228 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
   }
 
   @override
-Widget build(BuildContext context) {
-  final dark = isDark;
+  Widget build(BuildContext context) {
+    final dark = isDark;
 
-  final background =
-      dark ? const Color(0xFF0F1115) : const Color(0xFFF7F8FA);
-  final cardColor =
-      dark ? const Color(0xFF1A1C22) : Colors.white;
+    final background =
+        dark ? const Color(0xFF0F1115) : const Color(0xFFF7F8FA);
+    final cardColor =
+        dark ? const Color(0xFF1A1C22) : Colors.white;
 
-  return AnimatedContainer(
-    duration: const Duration(milliseconds: 400),
-    curve: Curves.easeInOut,
-    child: Scaffold(
-      backgroundColor: background,
-      appBar: AppBar(
-        title: const Text("Ensayo"),
-        centerTitle: true,
-        backgroundColor: cardColor,
-        foregroundColor: dark ? Colors.white : Colors.black,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.history),
-            onPressed: () {
-              Navigator.push(
-                context,
-                PageRouteBuilder(
-                  pageBuilder: (_, __, ___) =>
-                      HistorialPage(historial: historial),
-                  transitionsBuilder: (_, animation, __, child) {
-                    return FadeTransition(
-                      opacity: animation,
-                      child: child,
-                    );
-                  },
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              dark ? Icons.dark_mode : Icons.light_mode,
-            ),
-            onPressed: () {
-              setState(() {
-                isDark = !isDark;
-              });
-            },
-          ),
-        ],
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.easeInOut,
-            width: 380,
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                const Icon(
-                  Icons.science,
-                  size: 40,
-                  color: Colors.blue,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  "Cono y Arena",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w600,
-                    color: dark ? Colors.white : Colors.black,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+      child: Scaffold(
+        backgroundColor: background,
+        appBar: AppBar(
+          title: const Text("Ensayo"),
+          centerTitle: true,
+          backgroundColor: cardColor,
+          foregroundColor: dark ? Colors.white : Colors.black,
+          elevation: 0,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.history),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (_, __, ___) =>
+                        HistorialPage(historial: historial),
+                    transitionsBuilder: (_, animation, __, child) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      );
+                    },
                   ),
-                ),
-                const SizedBox(height: 20),
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      inputField(
-                        "Peso inicial",
-                        Icons.scale,
-                        pesoInicialController,
-                        dark,
-                      ),
-                      inputField(
-                        "Peso restante",
-                        Icons.scale,
-                        pesoFinalController,
-                        dark,
-                      ),
-                      inputField(
-                        "Peso húmedo",
-                        Icons.inventory,
-                        pesoHumedoController,
-                        dark,
-                      ),
-                      inputField(
-                        "Humedad (%)",
-                        Icons.water_drop,
-                        humedadController,
-                        dark,
-                      ),
-                      const SizedBox(height: 10),
+                );
+              },
+            ),
+            IconButton(
+              icon: Icon(
+                dark ? Icons.dark_mode : Icons.light_mode,
+              ),
+              onPressed: () {
+                setState(() {
+                  isDark = !isDark;
+                });
+              },
+            ),
+          ],
+        ),
+        body: Center(
+          child: SingleChildScrollView(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeInOut,
+              width: 380,
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  const Icon(
+                    Icons.science,
+                    size: 40,
+                    color: Colors.blue,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Cono y Arena",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
+                      color: dark ? Colors.white : Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        inputField(
+                          "Peso inicial",
+                          Icons.scale,
+                          pesoInicialController,
+                          dark,
+                        ),
+                        inputField(
+                          "Peso restante",
+                          Icons.scale,
+                          pesoFinalController,
+                          dark,
+                        ),
+                        inputField(
+                          "Peso húmedo",
+                          Icons.inventory,
+                          pesoHumedoController,
+                          dark,
+                        ),
+                        inputField(
+                          "Humedad (%)",
+                          Icons.water_drop,
+                          humedadController,
+                          dark,
+                        ),
+                        const SizedBox(height: 10),
 
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            HapticFeedback.lightImpact();
-                            calcular();
-                          },
-                          style: ButtonStyle(
-                            padding: MaterialStateProperty.all(
-                              const EdgeInsets.symmetric(vertical: 16),
-                            ),
-                            backgroundColor:
-                                MaterialStateProperty.all(Colors.blue),
-                            shape: MaterialStateProperty.all(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              HapticFeedback.lightImpact();
+                              calcular();
+                            },
+                            style: ButtonStyle(
+                              padding: MaterialStateProperty.all(
+                                const EdgeInsets.symmetric(vertical: 16),
+                              ),
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.blue),
+                              shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              elevation:
+                                  MaterialStateProperty.all(4),
+                              shadowColor:
+                                  MaterialStateProperty.all(
+                                Colors.blue.withOpacity(0.4),
+                              ),
+                              overlayColor:
+                                  MaterialStateProperty.all(
+                                Colors.white.withOpacity(0.1),
                               ),
                             ),
-                            elevation:
-                                MaterialStateProperty.all(4),
-                            shadowColor:
-                                MaterialStateProperty.all(
-                              Colors.blue.withOpacity(0.4),
-                            ),
-                            overlayColor:
-                                MaterialStateProperty.all(
-                              Colors.white.withOpacity(0.1),
-                            ),
-                          ),
-                          child: const Text(
-                            "Calcular",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 30),
-                if (hayResultado)
-                  AnimatedOpacity(
-                    duration: const Duration(milliseconds: 400),
-                    opacity: hayResultado ? 1 : 0,
-                    child: AnimatedScale(
-                      duration:
-                          const Duration(milliseconds: 400),
-                      scale: hayResultado ? 1 : 0.95,
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: cardColor,
-                          borderRadius:
-                              BorderRadius.circular(18),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(
-                                  dark ? 0.2 : 0.05),
-                              blurRadius: 20,
-                              spreadRadius: 1,
-                            )
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              "Resultados",
+                            child: const Text(
+                              "Calcular",
                               style: TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: dark
-                                    ? Colors.white
-                                    : Colors.black,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                            const SizedBox(height: 15),
-                            Row(
-                              children: [
-                                resultItem(
-                                    "Arena",
-                                    arenaUsada,
-                                    "g",
-                                    dark),
-                                resultItem(
-                                    "Hueco",
-                                    arenaHueco,
-                                    "g",
-                                    dark),
-                              ],
-                            ),
-                            const SizedBox(height: 15),
-                            Row(
-                              children: [
-                                resultItem(
-                                    "Volumen",
-                                    volumen,
-                                    "cm³",
-                                    dark),
-                                resultItem(
-                                    "Densidad",
-                                    densidad,
-                                    "g/cm³",
-                                    dark),
-                              ],
-                            ),
-                          ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  if (hayResultado)
+                    AnimatedOpacity(
+                      duration: const Duration(milliseconds: 400),
+                      opacity: hayResultado ? 1 : 0,
+                      child: AnimatedScale(
+                        duration:
+                            const Duration(milliseconds: 400),
+                        scale: hayResultado ? 1 : 0.95,
+                        child: Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: cardColor,
+                            borderRadius:
+                                BorderRadius.circular(18),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(
+                                    dark ? 0.2 : 0.05),
+                                blurRadius: 20,
+                                spreadRadius: 1,
+                              )
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              Text(
+                                "Resultados",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: dark
+                                      ? Colors.white
+                                      : Colors.black,
+                                ),
+                              ),
+                              const SizedBox(height: 15),
+                              Row(
+                                children: [
+                                  resultItem(
+                                      "Arena",
+                                      arenaUsada,
+                                      "g",
+                                      dark),
+                                  resultItem(
+                                      "Hueco",
+                                      arenaHueco,
+                                      "g",
+                                      dark),
+                                ],
+                              ),
+                              const SizedBox(height: 15),
+                              Row(
+                                children: [
+                                  resultItem(
+                                      "Volumen",
+                                      volumen,
+                                      "cm³",
+                                      dark),
+                                  resultItem(
+                                      "Densidad",
+                                      densidad,
+                                      "g/cm³",
+                                      dark),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
- }
+    );
+  }
 }
