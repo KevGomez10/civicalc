@@ -1,12 +1,10 @@
 import 'package:civicalc/features/cono_arena/presentation/services/reporte_pdf_service.dart';
+import 'package:civicalc/features/cono_arena/data/services/ensayo_api_service.dart';
 import 'package:civicalc/features/cono_arena/presentation/pages/historial_page.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import '../../domain/entities/datos_entrada_cono_arena.dart';
 import '../../domain/usecases/calcular_ensayo_cono_arena.dart';
-import 'package:civicalc/core/utils/usuario_sesion.dart';
-import 'package:civicalc/core/utils/usuario_sesion.dart';
-import 'package:civicalc/features/auth/presentation/pages/login_page.dart';
 
 class ConoArenaPage extends StatefulWidget {
   const ConoArenaPage({super.key});
@@ -23,6 +21,8 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
   final pesoHumedoController = TextEditingController();
   final humedadController = TextEditingController();
 
+  final ensayoApiService = EnsayoApiService();
+
   double? arenaUsada;
   double? arenaHueco;
   double? volumen;
@@ -32,7 +32,7 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
   bool isDark = false;
   List<String> historial = [];
 
-  void calcular() {
+  Future<void> calcular() async {
     if (!_formKey.currentState!.validate()) return;
 
     try {
@@ -51,6 +51,25 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
 
       final res = CalcularEnsayoConoArena().ejecutar(datos);
 
+      // Guardar en base de datos
+      final guardado = await ensayoApiService.guardarEnsayo(
+        abscisa: datos.abscisa,
+        capa: datos.capa,
+        costado: datos.costado,
+        pesoInicial: datos.pesoInicial,
+        pesoFinal: datos.pesoFinal,
+        constanteCono: datos.constanteCono,
+        densidadArena: datos.densidadArena,
+        pesoHumedo: datos.pesoHumedo,
+        humedad: datos.humedad,
+        arenaUsada: res.arenaUsada,
+        arenaHueco: res.arenaHueco,
+        volumen: res.volumen,
+        densidad: res.densidad,
+      );
+
+      if (!mounted) return;
+
       setState(() {
         hayResultado = true;
         arenaUsada = res.arenaUsada;
@@ -62,6 +81,17 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
           "Densidad: ${res.densidad.toStringAsFixed(2)} | Volumen: ${res.volumen.toStringAsFixed(2)}",
         );
       });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            guardado
+                ? "✅ Ensayo calculado y guardado correctamente"
+                : "⚠️ Ensayo calculado, pero no se pudo guardar",
+          ),
+          backgroundColor: guardado ? Colors.green : Colors.orange,
+        ),
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -181,7 +211,7 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
           backgroundColor: cardColor,
           foregroundColor: dark ? Colors.white : Colors.black,
           elevation: 0,
-          actions: [  
+          actions: [
             IconButton(
               icon: const Icon(Icons.history),
               onPressed: () {
@@ -201,36 +231,14 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
               },
             ),
             IconButton(
-              icon: Icon(
-                dark ? Icons.dark_mode : Icons.light_mode,
-              ),
+              icon: Icon(dark ? Icons.dark_mode : Icons.light_mode),
               onPressed: () {
                 setState(() {
                   isDark = !isDark;
                 });
               },
             ),
-                       IconButton(
-    icon: const Icon(Icons.logout),
-    tooltip: "Cerrar sesión",
-    onPressed: () {
-
-      UsuarioSesion.nombre = "";
-      UsuarioSesion.empresa = "";
-      UsuarioSesion.proyecto = "";
-      UsuarioSesion.usuario = "";
-
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const LoginPage(),
-        ),
-        (route) => false,
-      );
-    },
-  ),
-], 
-
+          ],
         ),
         body: Center(
           child: SingleChildScrollView(
@@ -240,61 +248,11 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
               width: 380,
               padding: const EdgeInsets.all(20),
               child: Column(
-  children: [
-
-    Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: dark
-            ? const Color(0xFF1A1C22)
-            : Colors.blue.shade50,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "👤 ${UsuarioSesion.nombre}",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: dark ? Colors.white : Colors.black,
-            ),
-          ),
-
-          const SizedBox(height: 5),
-
-          Text(
-            "🏢 ${UsuarioSesion.empresa}",
-            style: TextStyle(
-              color: dark ? Colors.white70 : Colors.black87,
-            ),
-          ),
-
-          const SizedBox(height: 5),
-
-          Text(
-            "📁 ${UsuarioSesion.proyecto}",
-            style: TextStyle(
-              color: dark ? Colors.white70 : Colors.black87,
-            ),
-          ),
-        ],
-      ),
-    ),
-
-    const SizedBox(height: 20),
-
-    const Icon(
-      Icons.science,
-      size: 40,
-      color: Colors.blue,
-    ),
-
-    const SizedBox(height: 10),
-
-    Text(
-      "Cono y Arena",
+                children: [
+                  const Icon(Icons.science, size: 40, color: Colors.blue),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Cono y Arena",
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -306,30 +264,14 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
                     key: _formKey,
                     child: Column(
                       children: [
-                        inputField(
-                          "Peso inicial",
-                          Icons.scale,
-                          pesoInicialController,
-                          dark,
-                        ),
-                        inputField(
-                          "Peso restante",
-                          Icons.scale,
-                          pesoFinalController,
-                          dark,
-                        ),
-                        inputField(
-                          "Peso húmedo",
-                          Icons.inventory,
-                          pesoHumedoController,
-                          dark,
-                        ),
-                        inputField(
-                          "Humedad (%)",
-                          Icons.water_drop,
-                          humedadController,
-                          dark,
-                        ),
+                        inputField("Peso inicial", Icons.scale,
+                            pesoInicialController, dark),
+                        inputField("Peso restante", Icons.scale,
+                            pesoFinalController, dark),
+                        inputField("Peso húmedo", Icons.inventory,
+                            pesoHumedoController, dark),
+                        inputField("Humedad (%)", Icons.water_drop,
+                            humedadController, dark),
                         const SizedBox(height: 10),
 
                         // Botón Calcular
@@ -369,7 +311,7 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
                           ),
                         ),
 
-                        // Botón Exportar PDF (solo aparece si hay resultado)
+                        // Botón Exportar PDF
                         if (hayResultado)
                           Padding(
                             padding: const EdgeInsets.only(top: 12),
@@ -384,8 +326,8 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
                                         pesoFinalController.text),
                                     pesoHumedo: double.parse(
                                         pesoHumedoController.text),
-                                    humedad:
-                                        double.parse(humedadController.text),
+                                    humedad: double.parse(
+                                        humedadController.text),
                                     arenaUsada: arenaUsada!,
                                     arenaHueco: arenaHueco!,
                                     volumen: volumen!,
@@ -401,8 +343,7 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
                                 style: OutlinedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 14),
-                                  side:
-                                      const BorderSide(color: Colors.blue),
+                                  side: const BorderSide(color: Colors.blue),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
                                   ),
@@ -435,7 +376,7 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
                                     .withOpacity(dark ? 0.2 : 0.05),
                                 blurRadius: 20,
                                 spreadRadius: 1,
-                              )
+                              ),
                             ],
                           ),
                           child: Column(
@@ -445,8 +386,7 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color:
-                                      dark ? Colors.white : Colors.black,
+                                  color: dark ? Colors.white : Colors.black,
                                 ),
                               ),
                               const SizedBox(height: 15),
@@ -459,8 +399,7 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
                               const SizedBox(height: 15),
                               Row(
                                 children: [
-                                  resultItem(
-                                      "Volumen", volumen, "cm³", dark),
+                                  resultItem("Volumen", volumen, "cm³", dark),
                                   resultItem(
                                       "Densidad", densidad, "g/cm³", dark),
                                 ],
