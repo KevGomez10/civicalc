@@ -115,7 +115,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-<<<<<<< HEAD
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -123,10 +122,8 @@ packages:
     version: "0.0.0"
   http:
     dependency: transitive
-=======
   http:
     dependency: "direct main"
->>>>>>> 721cb36e94efcbf73e1d847ba3cecefe36aa8e57
     description:
       name: http
       sha256: "87721a4a50b19c7f1d49001e51409bddc46303966ce89a65af4f4e6004896412"
