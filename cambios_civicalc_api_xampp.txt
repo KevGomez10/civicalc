@@ -1,0 +1,481 @@
+CAMBIOS REALIZADOS EN CIVICALC PARA CONECTAR CON XAMPP / MYSQL
+================================================================
+
+OBJETIVO
+--------
+Conectar el proyecto Flutter CivilCalc con una base de datos MySQL usando XAMPP.
+La arquitectura usada es:
+
+Flutter -> API PHP en XAMPP -> MySQL
+
+No se conecta Flutter directamente a MySQL. Flutter envía datos por HTTP a archivos PHP, y PHP se encarga de guardar la información en la base de datos.
+
+
+1. CAMBIO EN pubspec.yaml
+-------------------------
+Se agregó la dependencia http para poder hacer peticiones HTTP desde Flutter.
+
+Archivo:
+pubspec.yaml
+
+Sección modificada:
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  http: ^1.5.0
+
+Luego se ejecutó:
+
+flutter pub get
+
+
+2. NUEVA CARPETA EN FLUTTER
+---------------------------
+Se creó una carpeta para manejar la conexión con la API:
+
+lib/features/cono_arena/data/services/
+
+Dentro de esa carpeta se creó el archivo:
+
+ensayo_api_service.dart
+
+
+3. ARCHIVO ensayo_api_service.dart
+----------------------------------
+Este archivo contiene el servicio que envía los datos del ensayo a PHP.
+
+Código usado:
+
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+class EnsayoApiService {
+  static const String baseUrl = "http://localhost/civicalc_api";
+
+  Future<bool> guardarEnsayo({
+    required String abscisa,
+    required String capa,
+    required String costado,
+    required double pesoInicial,
+    required double pesoFinal,
+    required double constanteCono,
+    required double densidadArena,
+    required double pesoHumedo,
+    required double humedad,
+    required double arenaUsada,
+    required double arenaHueco,
+    required double volumen,
+    required double densidad,
+  }) async {
+    final url = Uri.parse("$baseUrl/guardar_ensayo.php");
+
+    final response = await http.post(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({
+        "abscisa": abscisa,
+        "capa": capa,
+        "costado": costado,
+        "peso_inicial": pesoInicial,
+        "peso_final": pesoFinal,
+        "constante_cono": constanteCono,
+        "densidad_arena": densidadArena,
+        "peso_humedo": pesoHumedo,
+        "humedad": humedad,
+        "arena_usada": arenaUsada,
+        "arena_hueco": arenaHueco,
+        "volumen": volumen,
+        "densidad": densidad,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data["success"] == true;
+    }
+
+    return false;
+  }
+}
+
+Nota:
+- Para Chrome, Windows o navegador local se usa:
+  http://localhost/civicalc_api
+
+- Para emulador Android normalmente se usa:
+  http://10.0.2.2/civicalc_api
+
+- Para celular físico se usa la IP local del computador, por ejemplo:
+  http://192.168.1.10/civicalc_api
+
+
+4. CAMBIOS EN cono_arena_page.dart
+----------------------------------
+Archivo modificado:
+
+lib/features/cono_arena/presentation/pages/cono_arena_page.dart
+
+Se agregó el import del servicio:
+
+import '../../data/services/ensayo_api_service.dart';
+
+Dentro de la clase _ConoArenaPageState se agregó:
+
+final ensayoApiService = EnsayoApiService();
+
+La función calcular cambió de:
+
+void calcular() {
+
+A:
+
+Future<void> calcular() async {
+
+Después de calcular el resultado con:
+
+final res = CalcularEnsayoConoArena().ejecutar(datos);
+
+se agregó el guardado en la base de datos:
+
+final guardado = await ensayoApiService.guardarEnsayo(
+  abscisa: datos.abscisa,
+  capa: datos.capa,
+  costado: datos.costado,
+  pesoInicial: datos.pesoInicial,
+  pesoFinal: datos.pesoFinal,
+  constanteCono: datos.constanteCono,
+  densidadArena: datos.densidadArena,
+  pesoHumedo: datos.pesoHumedo,
+  humedad: datos.humedad,
+  arenaUsada: res.arenaUsada,
+  arenaHueco: res.arenaHueco,
+  volumen: res.volumen,
+  densidad: res.densidad,
+);
+
+Luego se agregó esta verificación para evitar advertencias de Flutter después del await:
+
+if (!mounted) return;
+
+Después del setState se agregó un mensaje visual para saber si se guardó o no:
+
+ScaffoldMessenger.of(context).showSnackBar(
+  SnackBar(
+    content: Text(
+      guardado
+          ? "Ensayo calculado y guardado correctamente"
+          : "Ensayo calculado, pero no se pudo guardar",
+    ),
+    backgroundColor: guardado ? Colors.green : Colors.orange,
+  ),
+);
+
+También se corrigió un problema de llaves en la función calcular, porque faltaba cerrar correctamente el try/catch antes de iniciar el widget inputField.
+
+
+5. BASE DE DATOS EN MYSQL
+-------------------------
+En phpMyAdmin se creó la base de datos:
+
+civicalc_db
+
+Luego se creó la tabla:
+
+CREATE TABLE ensayos_cono_arena (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    abscisa VARCHAR(50),
+    capa VARCHAR(50),
+    costado VARCHAR(50),
+
+    peso_inicial DOUBLE,
+    peso_final DOUBLE,
+    constante_cono DOUBLE,
+    densidad_arena DOUBLE,
+
+    peso_humedo DOUBLE,
+    humedad DOUBLE,
+
+    arena_usada DOUBLE,
+    arena_hueco DOUBLE,
+    volumen DOUBLE,
+    densidad DOUBLE,
+
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+6. API PHP EN XAMPP
+-------------------
+Se creó una carpeta dentro de htdocs:
+
+C:\xampp\htdocs\civicalc_api
+
+Dentro se crearon estos archivos:
+
+- conexion.php
+- listar_ensayos.php
+- guardar_ensayo.php
+
+
+7. ARCHIVO conexion.php
+-----------------------
+Ruta:
+
+C:\xampp\htdocs\civicalc_api\conexion.php
+
+Código:
+
+<?php
+
+$host = "localhost";
+$user = "root";
+$password = "";
+$database = "civicalc_db";
+
+$conn = new mysqli($host, $user, $password, $database);
+
+if ($conn->connect_error) {
+    die("Error de conexión");
+}
+
+$conn->set_charset("utf8");
+
+
+8. ARCHIVO listar_ensayos.php
+-----------------------------
+Ruta:
+
+C:\xampp\htdocs\civicalc_api\listar_ensayos.php
+
+Código:
+
+<?php
+
+header("Content-Type: application/json");
+header("Access-Control-Allow-Origin: *");
+
+require_once "conexion.php";
+
+$sql = "SELECT * FROM ensayos_cono_arena ORDER BY fecha_registro DESC";
+$result = $conn->query($sql);
+
+$datos = [];
+
+while($fila = $result->fetch_assoc()){
+    $datos[] = $fila;
+}
+
+echo json_encode($datos);
+
+$conn->close();
+
+
+9. ARCHIVO guardar_ensayo.php
+-----------------------------
+Ruta:
+
+C:\xampp\htdocs\civicalc_api\guardar_ensayo.php
+
+Código:
+
+<?php
+
+header("Content-Type: application/json");
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+
+if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
+    exit;
+}
+
+require_once "conexion.php";
+
+$data = json_decode(file_get_contents("php://input"), true);
+
+if (!$data) {
+    echo json_encode([
+        "success" => false,
+        "message" => "No se recibieron datos"
+    ]);
+    exit;
+}
+
+$sql = "INSERT INTO ensayos_cono_arena (
+    abscisa, capa, costado,
+    peso_inicial, peso_final, constante_cono, densidad_arena,
+    peso_humedo, humedad,
+    arena_usada, arena_hueco, volumen, densidad
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+$stmt = $conn->prepare($sql);
+
+$stmt->bind_param(
+    "sssdddddddddd",
+    $data["abscisa"],
+    $data["capa"],
+    $data["costado"],
+    $data["peso_inicial"],
+    $data["peso_final"],
+    $data["constante_cono"],
+    $data["densidad_arena"],
+    $data["peso_humedo"],
+    $data["humedad"],
+    $data["arena_usada"],
+    $data["arena_hueco"],
+    $data["volumen"],
+    $data["densidad"]
+);
+
+if ($stmt->execute()) {
+    echo json_encode([
+        "success" => true,
+        "message" => "Ensayo guardado correctamente"
+    ]);
+} else {
+    echo json_encode([
+        "success" => false,
+        "message" => "Error al guardar el ensayo"
+    ]);
+}
+
+$stmt->close();
+$conn->close();
+
+
+10. TUTORIAL PEQUEÑO PARA APLICAR LA API EN XAMPP
+--------------------------------------------------
+
+Paso 1: Abrir XAMPP
+- Iniciar Apache.
+- Iniciar MySQL.
+
+Paso 2: Crear la base de datos
+- Abrir el navegador.
+- Entrar a:
+  http://localhost/phpmyadmin
+- Crear la base de datos:
+  civicalc_db
+- Ejecutar el SQL de la tabla ensayos_cono_arena.
+
+Paso 3: Crear la carpeta de la API
+- Ir a:
+  C:\xampp\htdocs
+- Crear la carpeta:
+  civicalc_api
+
+Paso 4: Crear los archivos PHP
+Dentro de civicalc_api crear:
+
+- conexion.php
+- listar_ensayos.php
+- guardar_ensayo.php
+
+Pegar el código correspondiente en cada archivo.
+
+Paso 5: Probar la API
+En el navegador abrir:
+
+http://localhost/civicalc_api/listar_ensayos.php
+
+Si la API funciona, debe mostrar:
+
+[]
+
+o una lista de registros en formato JSON.
+
+También se puede abrir:
+
+http://localhost/civicalc_api/guardar_ensayo.php
+
+Es normal que diga:
+
+{"success":false,"message":"No se recibieron datos"}
+
+Eso significa que el archivo existe y responde, pero necesita recibir datos por POST desde Flutter.
+
+Paso 6: Ejecutar Flutter
+Desde la carpeta del proyecto:
+
+flutter pub get
+flutter run -d chrome
+
+Paso 7: Probar guardado
+- Llenar los campos con valores válidos.
+- Presionar Calcular.
+- Si aparece el mensaje "Ensayo calculado y guardado correctamente", revisar phpMyAdmin.
+- Entrar a:
+  civicalc_db -> ensayos_cono_arena -> Examinar
+- Debe aparecer el nuevo registro.
+
+
+11. DATOS DE PRUEBA RECOMENDADOS
+--------------------------------
+No usar valores muy pequeños, porque la constante del cono es 1603.
+
+Ejemplo válido:
+
+Peso inicial: 5000
+Peso restante: 2500
+Peso húmedo: 2000
+Humedad: 5
+
+Con esos datos:
+
+Arena usada = 5000 - 2500 = 2500
+Arena hueco = 2500 - 1603 = 897
+
+Como arena hueco es positiva, el cálculo puede continuar.
+
+
+12. ERRORES COMUNES
+-------------------
+
+Error: "flutter no se reconoce como comando"
+Solución:
+Agregar Flutter al PATH o instalarlo correctamente.
+
+Error en pubspec.yaml: "Mapping values are not allowed here"
+Solución:
+Revisar indentación. http debe estar al mismo nivel que cupertino_icons.
+
+Correcto:
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  http: ^1.5.0
+
+Error: "la arena en el hueco es inválida"
+Solución:
+Usar valores mayores. El peso inicial menos el peso final debe ser mayor que la constante del cono.
+
+Error: "Ensayo calculado, pero no se pudo guardar"
+Posibles causas:
+- Apache no está iniciado.
+- MySQL no está iniciado.
+- La carpeta civicalc_api está mal ubicada.
+- El archivo guardar_ensayo.php tiene error.
+- La base de datos o tabla no existen.
+- baseUrl en Flutter no coincide con la ruta real.
+
+
+13. RESUMEN FINAL
+-----------------
+Se agregó conexión con base de datos usando una API PHP.
+El flujo actual es:
+
+1. El usuario ingresa datos en Flutter.
+2. Flutter calcula el ensayo.
+3. Flutter envía los datos a guardar_ensayo.php.
+4. PHP recibe los datos en JSON.
+5. PHP los guarda en MySQL.
+6. El usuario puede revisar los registros en phpMyAdmin.
+
