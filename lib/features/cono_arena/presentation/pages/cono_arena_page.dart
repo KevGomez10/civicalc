@@ -1,10 +1,12 @@
-import 'package:civicalc/features/cono_arena/presentation/services/reporte_pdf_service.dart';
+import 'package:civicalc/features/cono_arena/presentation/reporte_pdf_service.dart';
 import 'package:civicalc/features/cono_arena/presentation/pages/historial_page.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import '../../domain/entities/datos_entrada_cono_arena.dart';
 import '../../domain/usecases/calcular_ensayo_cono_arena.dart';
 import '../../data/services/ensayo_api_service.dart';
+import 'package:civicalc/core/utils/usuario_sesion.dart';
+import 'package:civicalc/features/auth/presentation/pages/login_page.dart';
 
 class ConoArenaPage extends StatefulWidget {
   const ConoArenaPage({super.key});
@@ -201,101 +203,101 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
         dark ? const Color(0xFF0F1115) : const Color(0xFFF7F8FA);
     final cardColor = dark ? const Color(0xFF1A1C22) : Colors.white;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
-      child: Scaffold(
-        backgroundColor: background,
-        appBar: AppBar(
-          title: const Text("Ensayo"),
-          centerTitle: true,
-          backgroundColor: cardColor,
-          foregroundColor: dark ? Colors.white : Colors.black,
-          elevation: 0,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.history),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (_, _, _) =>
-                        HistorialPage(historial: historial),
-                    transitionsBuilder: (_, animation, _, child) {
-                      return FadeTransition(
-                        opacity: animation,
-                        child: child,
-                      );
-                    },
-                  ),
-                );
-              },
+  return AnimatedContainer(
+    duration: const Duration(milliseconds: 400),
+    curve: Curves.easeInOut,
+    child: Scaffold(
+      backgroundColor: background,
+      appBar: AppBar(
+        title: const Text("Ensayo"),
+        centerTitle: true,
+        backgroundColor: cardColor,
+        foregroundColor: dark ? Colors.white : Colors.black,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history),
+            onPressed: () {
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (_, __, ___) =>
+                      HistorialPage(historial: historial),
+                  transitionsBuilder: (_, animation, __, child) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              dark ? Icons.dark_mode : Icons.light_mode,
             ),
-            IconButton(
-              icon: Icon(
-                dark ? Icons.dark_mode : Icons.light_mode,
-              ),
-              onPressed: () {
-                setState(() {
-                  isDark = !isDark;
-                });
-              },
-            ),
-          ],
-        ),
-        body: Center(
-          child: SingleChildScrollView(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeInOut,
-              width: 380,
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  const Icon(
-                    Icons.science,
-                    size: 40,
-                    color: Colors.blue,
+            onPressed: () {
+              setState(() {
+                isDark = !isDark;
+              });
+            },
+          ),
+        ],
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeInOut,
+            width: 380,
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                const Icon(
+                  Icons.science,
+                  size: 40,
+                  color: Colors.blue,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  "Cono y Arena",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w600,
+                    color: dark ? Colors.white : Colors.black,
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "Cono y Arena",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                      color: dark ? Colors.white : Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        inputField(
-                          "Peso inicial",
-                          Icons.scale,
-                          pesoInicialController,
-                          dark,
-                        ),
-                        inputField(
-                          "Peso restante",
-                          Icons.scale,
-                          pesoFinalController,
-                          dark,
-                        ),
-                        inputField(
-                          "Peso húmedo",
-                          Icons.inventory,
-                          pesoHumedoController,
-                          dark,
-                        ),
-                        inputField(
-                          "Humedad (%)",
-                          Icons.water_drop,
-                          humedadController,
-                          dark,
-                        ),
-                        const SizedBox(height: 10),
+                ),
+                const SizedBox(height: 20),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      inputField(
+                        "Peso inicial",
+                        Icons.scale,
+                        pesoInicialController,
+                        dark,
+                      ),
+                      inputField(
+                        "Peso restante",
+                        Icons.scale,
+                        pesoFinalController,
+                        dark,
+                      ),
+                      inputField(
+                        "Peso húmedo",
+                        Icons.inventory,
+                        pesoHumedoController,
+                        dark,
+                      ),
+                      inputField(
+                        "Humedad (%)",
+                        Icons.water_drop,
+                        humedadController,
+                        dark,
+                      ),
+                      const SizedBox(height: 10),
 
                         // Botón Calcular
                         SizedBox(
@@ -316,14 +318,6 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                               ),
-<<<<<<< HEAD
-                              elevation: MaterialStateProperty.all(4),
-                              shadowColor: MaterialStateProperty.all(
-                                Colors.blue.withOpacity(0.4),
-                              ),
-                              overlayColor: MaterialStateProperty.all(
-                                Colors.white.withOpacity(0.1),
-=======
                               elevation:
                                   WidgetStateProperty.all(4),
                               shadowColor:
@@ -333,7 +327,6 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
                               overlayColor:
                                   WidgetStateProperty.all(
                                 Colors.white.withValues(alpha: 0.1),
->>>>>>> 721cb36e94efcbf73e1d847ba3cecefe36aa8e57
                               ),
                             ),
                             child: const Text(
@@ -408,13 +401,8 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
                             borderRadius: BorderRadius.circular(18),
                             boxShadow: [
                               BoxShadow(
-<<<<<<< HEAD
-                                color: Colors.black
-                                    .withOpacity(dark ? 0.2 : 0.05),
-=======
                                 color: Colors.black.withValues(
                                     alpha: dark ? 0.2 : 0.05),
->>>>>>> 721cb36e94efcbf73e1d847ba3cecefe36aa8e57
                                 blurRadius: 20,
                                 spreadRadius: 1,
                               )

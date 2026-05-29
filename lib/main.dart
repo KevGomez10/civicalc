@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'features/auth/presentation/pages/login_page.dart';
 import 'features/cono_arena/presentation/pages/cono_arena_page.dart';
 
 void main() {
@@ -13,7 +14,7 @@ class CivilCalcApp extends StatelessWidget {
     return MaterialApp(
       title: 'CivilCalc',
       debugShowCheckedModeBanner: false,
-      home: const ConoArenaPage(),
+      home: const LoginPage(),
     );
   }
 }
