@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import '../../domain/entities/datos_entrada_cono_arena.dart';
 import '../../domain/usecases/calcular_ensayo_cono_arena.dart';
-import '../../data/services/ensayo_api_service.dart';
 
 class ConoArenaPage extends StatefulWidget {
   const ConoArenaPage({super.key});
@@ -20,7 +19,6 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
   final pesoFinalController = TextEditingController();
   final pesoHumedoController = TextEditingController();
   final humedadController = TextEditingController();
-  final ensayoApiService = EnsayoApiService();
 
   double? arenaUsada;
   double? arenaHueco;
@@ -31,7 +29,7 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
   bool isDark = false;
   List<String> historial = [];
 
- Future<void> calcular() async {
+  void calcular() {
     if (!_formKey.currentState!.validate()) return;
 
     try {
@@ -50,24 +48,6 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
 
       final res = CalcularEnsayoConoArena().ejecutar(datos);
 
-      final guardado = await ensayoApiService.guardarEnsayo(
-        abscisa: datos.abscisa,
-        capa: datos.capa,
-        costado: datos.costado,
-        pesoInicial: datos.pesoInicial,
-        pesoFinal: datos.pesoFinal,
-        constanteCono: datos.constanteCono,
-        densidadArena: datos.densidadArena,
-        pesoHumedo: datos.pesoHumedo,
-        humedad: datos.humedad,
-        arenaUsada: res.arenaUsada,
-        arenaHueco: res.arenaHueco,
-        volumen: res.volumen,
-        densidad: res.densidad,
-      );
-
-      if (!mounted) return;
-
       setState(() {
         hayResultado = true;
         arenaUsada = res.arenaUsada;
@@ -79,21 +59,7 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
           "Densidad: ${res.densidad.toStringAsFixed(2)} | Volumen: ${res.volumen.toStringAsFixed(2)}",
         );
       });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            guardado
-                ? "Ensayo calculado y guardado correctamente"
-                : "Ensayo calculado, pero no se pudo guardar",
-          ),
-          backgroundColor:
-              guardado ? Colors.green : Colors.orange,
-        ),
-      );
     } catch (e) {
-      if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Error: ${e.toString()}"),
@@ -219,9 +185,9 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
                 Navigator.push(
                   context,
                   PageRouteBuilder(
-                    pageBuilder: (_, _, _) =>
+                    pageBuilder: (_, __, ___) =>
                         HistorialPage(historial: historial),
-                    transitionsBuilder: (_, animation, _, child) {
+                    transitionsBuilder: (_, animation, __, child) {
                       return FadeTransition(
                         opacity: animation,
                         child: child,
@@ -306,34 +272,22 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
                               calcular();
                             },
                             style: ButtonStyle(
-                              padding: WidgetStateProperty.all(
+                              padding: MaterialStateProperty.all(
                                 const EdgeInsets.symmetric(vertical: 16),
                               ),
                               backgroundColor:
-                                  WidgetStateProperty.all(Colors.blue),
-                              shape: WidgetStateProperty.all(
+                                  MaterialStateProperty.all(Colors.blue),
+                              shape: MaterialStateProperty.all(
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                               ),
-<<<<<<< HEAD
                               elevation: MaterialStateProperty.all(4),
                               shadowColor: MaterialStateProperty.all(
                                 Colors.blue.withOpacity(0.4),
                               ),
                               overlayColor: MaterialStateProperty.all(
                                 Colors.white.withOpacity(0.1),
-=======
-                              elevation:
-                                  WidgetStateProperty.all(4),
-                              shadowColor:
-                                  WidgetStateProperty.all(
-                                Colors.blue.withValues(alpha: 0.4),
-                              ),
-                              overlayColor:
-                                  WidgetStateProperty.all(
-                                Colors.white.withValues(alpha: 0.1),
->>>>>>> 721cb36e94efcbf73e1d847ba3cecefe36aa8e57
                               ),
                             ),
                             child: const Text(
@@ -408,13 +362,8 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
                             borderRadius: BorderRadius.circular(18),
                             boxShadow: [
                               BoxShadow(
-<<<<<<< HEAD
                                 color: Colors.black
                                     .withOpacity(dark ? 0.2 : 0.05),
-=======
-                                color: Colors.black.withValues(
-                                    alpha: dark ? 0.2 : 0.05),
->>>>>>> 721cb36e94efcbf73e1d847ba3cecefe36aa8e57
                                 blurRadius: 20,
                                 spreadRadius: 1,
                               )
