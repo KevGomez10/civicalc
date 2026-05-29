@@ -1,3 +1,4 @@
+import 'package:civicalc/features/cono_arena/presentation/services/reporte_pdf_service.dart';
 import 'package:civicalc/features/cono_arena/presentation/pages/historial_page.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -55,8 +56,8 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
         densidad = res.densidad;
 
         historial.add(
-         "Densidad: ${res.densidad.toStringAsFixed(2)} | Volumen: ${res.volumen.toStringAsFixed(2)}",
-         );
+          "Densidad: ${res.densidad.toStringAsFixed(2)} | Volumen: ${res.volumen.toStringAsFixed(2)}",
+        );
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -164,8 +165,7 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
 
     final background =
         dark ? const Color(0xFF0F1115) : const Color(0xFFF7F8FA);
-    final cardColor =
-        dark ? const Color(0xFF1A1C22) : Colors.white;
+    final cardColor = dark ? const Color(0xFF1A1C22) : Colors.white;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),
@@ -263,6 +263,7 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
                         ),
                         const SizedBox(height: 10),
 
+                        // Botón Calcular
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
@@ -281,14 +282,11 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                               ),
-                              elevation:
-                                  MaterialStateProperty.all(4),
-                              shadowColor:
-                                  MaterialStateProperty.all(
+                              elevation: MaterialStateProperty.all(4),
+                              shadowColor: MaterialStateProperty.all(
                                 Colors.blue.withOpacity(0.4),
                               ),
-                              overlayColor:
-                                  MaterialStateProperty.all(
+                              overlayColor: MaterialStateProperty.all(
                                 Colors.white.withOpacity(0.1),
                               ),
                             ),
@@ -301,28 +299,71 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
                             ),
                           ),
                         ),
+
+                        // Botón Exportar PDF (solo aparece si hay resultado)
+                        if (hayResultado)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 12),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton.icon(
+                                onPressed: () {
+                                  ReportePdfService.generarYGuardar(
+                                    pesoInicial: double.parse(
+                                        pesoInicialController.text),
+                                    pesoFinal: double.parse(
+                                        pesoFinalController.text),
+                                    pesoHumedo: double.parse(
+                                        pesoHumedoController.text),
+                                    humedad:
+                                        double.parse(humedadController.text),
+                                    arenaUsada: arenaUsada!,
+                                    arenaHueco: arenaHueco!,
+                                    volumen: volumen!,
+                                    densidad: densidad!,
+                                  );
+                                },
+                                icon: const Icon(Icons.picture_as_pdf,
+                                    color: Colors.blue),
+                                label: const Text(
+                                  "Exportar PDF",
+                                  style: TextStyle(color: Colors.blue),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 14),
+                                  side:
+                                      const BorderSide(color: Colors.blue),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),
+
                   const SizedBox(height: 30),
+
+                  // Tarjeta de resultados
                   if (hayResultado)
                     AnimatedOpacity(
                       duration: const Duration(milliseconds: 400),
                       opacity: hayResultado ? 1 : 0,
                       child: AnimatedScale(
-                        duration:
-                            const Duration(milliseconds: 400),
+                        duration: const Duration(milliseconds: 400),
                         scale: hayResultado ? 1 : 0.95,
                         child: Container(
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             color: cardColor,
-                            borderRadius:
-                                BorderRadius.circular(18),
+                            borderRadius: BorderRadius.circular(18),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(
-                                    dark ? 0.2 : 0.05),
+                                color: Colors.black
+                                    .withOpacity(dark ? 0.2 : 0.05),
                                 blurRadius: 20,
                                 spreadRadius: 1,
                               )
@@ -335,39 +376,24 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: dark
-                                      ? Colors.white
-                                      : Colors.black,
+                                  color:
+                                      dark ? Colors.white : Colors.black,
                                 ),
                               ),
                               const SizedBox(height: 15),
                               Row(
                                 children: [
-                                  resultItem(
-                                      "Arena",
-                                      arenaUsada,
-                                      "g",
-                                      dark),
-                                  resultItem(
-                                      "Hueco",
-                                      arenaHueco,
-                                      "g",
-                                      dark),
+                                  resultItem("Arena", arenaUsada, "g", dark),
+                                  resultItem("Hueco", arenaHueco, "g", dark),
                                 ],
                               ),
                               const SizedBox(height: 15),
                               Row(
                                 children: [
                                   resultItem(
-                                      "Volumen",
-                                      volumen,
-                                      "cm³",
-                                      dark),
+                                      "Volumen", volumen, "cm³", dark),
                                   resultItem(
-                                      "Densidad",
-                                      densidad,
-                                      "g/cm³",
-                                      dark),
+                                      "Densidad", densidad, "g/cm³", dark),
                                 ],
                               ),
                             ],
