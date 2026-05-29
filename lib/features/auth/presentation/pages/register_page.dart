@@ -19,23 +19,164 @@ class _RegisterPageState extends State<RegisterPage> {
   final passwordController = TextEditingController();
   final confirmarController = TextEditingController();
 
+  bool isDark = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Crear cuenta"),
+  backgroundColor:
+      isDark
+          ? const Color(0xFF1F1F1F)
+          : Colors.white,
+  elevation: 0,
+  title: Text(
+    "Crear cuenta",
+    style: TextStyle(
+      color:
+          isDark
+              ? Colors.white
+              : Colors.black,
+    ),
+  ),
+  actions: [
+    IconButton(
+      icon: Icon(
+        isDark
+            ? Icons.light_mode
+            : Icons.dark_mode,
+        color:
+            isDark
+                ? Colors.white
+                : Colors.black,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
+      onPressed: () {
+        setState(() {
+          isDark = !isDark;
+        });
+      },
+    ),
+  ],
+),
+      body: Container(
+  color:
+      isDark
+          ? const Color(0xFF121212)
+          : Colors.grey.shade100,
+  child: Center(
+    child: SingleChildScrollView(
+      child: Container(
+        width: 500,
+        margin: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(25),
+        decoration: BoxDecoration(
+          color:
+              isDark
+                  ? const Color(0xFF1F1F1F)
+                  : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: const Color(0xFF45A4F2),
+            width: 2,
+          ),
+          boxShadow: const [
+            BoxShadow(
+              blurRadius: 15,
+              color: Colors.black26,
+              offset: Offset(0, 5),
+            )
+          ],
+        ),
         child: Form(
           key: _formKey,
-          child: ListView(
+          child: Column(
+           mainAxisSize: MainAxisSize.min,
+            
             children: [
+              
+             Image.asset(
+  "assets/Logo Civicalc.png",
+  height: 100,
+),
+
+const SizedBox(height: 10),
+
+Container(
+  width: 120,
+  height: 4,
+  decoration: BoxDecoration(
+    color: const Color(0xFF45A4F2),
+    borderRadius: BorderRadius.circular(20),
+  ),
+),
+
+const SizedBox(height: 15),
+
+Text(
+  "Crear Cuenta",
+  style: TextStyle(
+    fontSize: 28,
+    fontWeight: FontWeight.bold,
+    color: isDark ? Colors.white : Colors.black,
+  ),
+),
+
+const SizedBox(height: 25),
+
               TextFormField(
-                controller: nombreController,
-                decoration: const InputDecoration(
-                  labelText: "Nombre del laboratorista",
-                ),
+  controller: nombreController,
+
+  style: TextStyle(
+    color:
+        isDark
+            ? Colors.white
+            : Colors.black,
+  ),
+
+  decoration: InputDecoration(
+    labelText: "Nombre del laboratorista",
+
+    labelStyle: TextStyle(
+    color:
+        isDark
+            ? Colors.white
+            : Colors.black,
+  ),
+
+  enabledBorder: OutlineInputBorder(
+  borderRadius: BorderRadius.circular(12),
+  borderSide: BorderSide(
+    color:
+        isDark
+            ? Colors.white54
+            : Colors.black54,
+  ),
+),
+
+focusedBorder: OutlineInputBorder(
+  borderRadius: BorderRadius.circular(12),
+  borderSide: const BorderSide(
+    color: Color(0xFF45A4F2),
+    width: 2,
+  ),
+),
+
+    filled: true,
+
+    fillColor:
+        isDark
+            ? const Color(0xFF2A2A2A)
+            : Colors.grey.shade50,
+
+    prefixIcon: const Icon(
+      Icons.person,
+    ),
+
+    border: OutlineInputBorder(
+      borderRadius:
+          BorderRadius.circular(12),
+    ),
+  ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Campo obligatorio";
@@ -47,10 +188,59 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: 15),
 
               TextFormField(
-                controller: empresaController,
-                decoration: const InputDecoration(
-                  labelText: "Empresa",
-                ),
+  controller: nombreController,
+
+  style: TextStyle(
+    color:
+        isDark
+            ? Colors.white
+            : Colors.black,
+  ),
+
+  decoration: InputDecoration(
+    labelText: "Empresa",
+
+    labelStyle: TextStyle(
+  color:
+      isDark
+          ? Colors.white
+          : Colors.black,
+),
+
+enabledBorder: OutlineInputBorder(
+  borderRadius: BorderRadius.circular(12),
+  borderSide: BorderSide(
+    color:
+        isDark
+            ? Colors.white54
+            : Colors.black54,
+  ),
+),
+
+focusedBorder: OutlineInputBorder(
+  borderRadius: BorderRadius.circular(12),
+  borderSide: const BorderSide(
+    color: Color(0xFF45A4F2),
+    width: 2,
+  ),
+),
+
+    filled: true,
+
+    fillColor:
+        isDark
+            ? const Color(0xFF2A2A2A)
+            : Colors.grey.shade50,
+
+    prefixIcon: const Icon(
+      Icons.person,
+    ),
+
+    border: OutlineInputBorder(
+      borderRadius:
+          BorderRadius.circular(12),
+    ),
+  ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Campo obligatorio";
@@ -62,10 +252,57 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: 15),
 
               TextFormField(
-                controller: proyectoController,
-                decoration: const InputDecoration(
-                  labelText: "Proyecto",
-                ),
+  controller: nombreController,
+
+  style: TextStyle(
+    color:
+        isDark
+            ? Colors.white
+            : Colors.black,
+  ),
+
+  decoration: InputDecoration(
+    labelText: "Proyecto",
+labelStyle: TextStyle(
+  color:
+      isDark
+          ? Colors.white
+          : Colors.black,
+),
+
+enabledBorder: OutlineInputBorder(
+  borderRadius: BorderRadius.circular(12),
+  borderSide: BorderSide(
+    color:
+        isDark
+            ? Colors.white54
+            : Colors.black54,
+  ),
+),
+
+focusedBorder: OutlineInputBorder(
+  borderRadius: BorderRadius.circular(12),
+  borderSide: const BorderSide(
+    color: Color(0xFF45A4F2),
+    width: 2,
+  ),
+),
+    filled: true,
+
+    fillColor:
+        isDark
+            ? const Color(0xFF2A2A2A)
+            : Colors.grey.shade50,
+
+    prefixIcon: const Icon(
+      Icons.person,
+    ),
+
+    border: OutlineInputBorder(
+      borderRadius:
+          BorderRadius.circular(12),
+    ),
+  ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Campo obligatorio";
@@ -77,10 +314,57 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: 15),
 
               TextFormField(
-                controller: usuarioController,
-                decoration: const InputDecoration(
-                  labelText: "Usuario",
-                ),
+  controller: nombreController,
+
+  style: TextStyle(
+    color:
+        isDark
+            ? Colors.white
+            : Colors.black,
+  ),
+
+  decoration: InputDecoration(
+    labelText: "Usuario",
+labelStyle: TextStyle(
+  color:
+      isDark
+          ? Colors.white
+          : Colors.black,
+),
+
+enabledBorder: OutlineInputBorder(
+  borderRadius: BorderRadius.circular(12),
+  borderSide: BorderSide(
+    color:
+        isDark
+            ? Colors.white54
+            : Colors.black54,
+  ),
+),
+
+focusedBorder: OutlineInputBorder(
+  borderRadius: BorderRadius.circular(12),
+  borderSide: const BorderSide(
+    color: Color(0xFF45A4F2),
+    width: 2,
+  ),
+),
+    filled: true,
+
+    fillColor:
+        isDark
+            ? const Color(0xFF2A2A2A)
+            : Colors.grey.shade50,
+
+    prefixIcon: const Icon(
+      Icons.person,
+    ),
+
+    border: OutlineInputBorder(
+      borderRadius:
+          BorderRadius.circular(12),
+    ),
+  ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Campo obligatorio";
@@ -92,11 +376,57 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: 15),
 
               TextFormField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: "Contraseña",
-                ),
+  controller: nombreController,
+
+  style: TextStyle(
+    color:
+        isDark
+            ? Colors.white
+            : Colors.black,
+  ),
+
+  decoration: InputDecoration(
+    labelText: "Contraseña",
+labelStyle: TextStyle(
+  color:
+      isDark
+          ? Colors.white
+          : Colors.black,
+),
+
+enabledBorder: OutlineInputBorder(
+  borderRadius: BorderRadius.circular(12),
+  borderSide: BorderSide(
+    color:
+        isDark
+            ? Colors.white54
+            : Colors.black54,
+  ),
+),
+
+focusedBorder: OutlineInputBorder(
+  borderRadius: BorderRadius.circular(12),
+  borderSide: const BorderSide(
+    color: Color(0xFF45A4F2),
+    width: 2,
+  ),
+),
+    filled: true,
+
+    fillColor:
+        isDark
+            ? const Color(0xFF2A2A2A)
+            : Colors.grey.shade50,
+
+    prefixIcon: const Icon(
+      Icons.person,
+    ),
+
+    border: OutlineInputBorder(
+      borderRadius:
+          BorderRadius.circular(12),
+    ),
+  ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Campo obligatorio";
@@ -108,11 +438,57 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: 15),
 
               TextFormField(
-                controller: confirmarController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: "Confirmar contraseña",
-                ),
+  controller: nombreController,
+
+  style: TextStyle(
+    color:
+        isDark
+            ? Colors.white
+            : Colors.black,
+  ),
+
+  decoration: InputDecoration(
+    labelText: "Confirmar Contraseña",
+labelStyle: TextStyle(
+  color:
+      isDark
+          ? Colors.white
+          : Colors.black,
+),
+
+enabledBorder: OutlineInputBorder(
+  borderRadius: BorderRadius.circular(12),
+  borderSide: BorderSide(
+    color:
+        isDark
+            ? Colors.white54
+            : Colors.black54,
+  ),
+),
+
+focusedBorder: OutlineInputBorder(
+  borderRadius: BorderRadius.circular(12),
+  borderSide: const BorderSide(
+    color: Color(0xFF45A4F2),
+    width: 2,
+  ),
+),
+    filled: true,
+
+    fillColor:
+        isDark
+            ? const Color(0xFF2A2A2A)
+            : Colors.grey.shade50,
+
+    prefixIcon: const Icon(
+      Icons.person,
+    ),
+
+    border: OutlineInputBorder(
+      borderRadius:
+          BorderRadius.circular(12),
+    ),
+  ),
                 validator: (value) {
                   if (value != passwordController.text) {
                     return "Las contraseñas no coinciden";
@@ -123,8 +499,18 @@ class _RegisterPageState extends State<RegisterPage> {
 
               const SizedBox(height: 30),
 
-              ElevatedButton(
-                onPressed: () async {
+              SizedBox(
+  width: double.infinity,
+  height: 50,
+  child: ElevatedButton(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: const Color(0xFF45A4F2),
+      foregroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+    onPressed: () async {
 
   if (!_formKey.currentState!.validate()) {
     return;
@@ -191,12 +577,22 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
 },
-                child: const Text("Crear cuenta"),
-              ),
+                child: const Text(
+  "Crear cuenta",
+  style: TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+  ),
+),
+  ),
+),
             ],
           ),
         ),
       ),
+      ),
+    ),
+  ),
     );
   }
 }

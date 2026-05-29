@@ -75,4 +75,29 @@ if (response.statusCode == 200) {
 return [];
 
 }
+
+Future<bool> eliminarEnsayo(int id) async {
+
+  final url = Uri.parse(
+    "$baseUrl/eliminar_ensayo.php",
+  );
+
+  final response = await http.post(
+    url,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: jsonEncode({
+      "id": id,
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    return data["success"] == true;
+  }
+
+  return false;
+}
+
 }
