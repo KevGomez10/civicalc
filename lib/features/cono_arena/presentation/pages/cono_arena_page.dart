@@ -1,10 +1,10 @@
-import 'package:civicalc/features/cono_arena/presentation/reporte_pdf_service.dart';
+import 'package:civicalc/features/cono_arena/presentation/services/reporte_pdf_service.dart';
 import 'package:civicalc/features/cono_arena/presentation/pages/historial_page.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import '../../domain/entities/datos_entrada_cono_arena.dart';
 import '../../domain/usecases/calcular_ensayo_cono_arena.dart';
-import '../../data/services/ensayo_api_service.dart';
+import 'package:civicalc/core/utils/usuario_sesion.dart';
 import 'package:civicalc/core/utils/usuario_sesion.dart';
 import 'package:civicalc/features/auth/presentation/pages/login_page.dart';
 
@@ -170,98 +170,47 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
         dark ? const Color(0xFF0F1115) : const Color(0xFFF7F8FA);
     final cardColor = dark ? const Color(0xFF1A1C22) : Colors.white;
 
-  return AnimatedContainer(
-    duration: const Duration(milliseconds: 400),
-    curve: Curves.easeInOut,
-    child: Scaffold(
-      backgroundColor: background,
-      appBar: AppBar(
-        title: const Text("Ensayo"),
-        centerTitle: true,
-        backgroundColor: cardColor,
-        foregroundColor: dark ? Colors.white : Colors.black,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.history),
-            onPressed: () {
-              Navigator.push(
-                context,
-                PageRouteBuilder(
-                  pageBuilder: (_, __, ___) =>
-                      HistorialPage(historial: historial),
-                  transitionsBuilder: (_, animation, __, child) {
-                    return FadeTransition(
-                      opacity: animation,
-                      child: child,
-                    );
-                  },
-                ),
-              );
-            },
-          ),
-          
-          IconButton(
-  icon: Icon(
-    dark ? Icons.dark_mode : Icons.light_mode,
-  ),
-  onPressed: () {
-    setState(() {
-      isDark = !isDark;
-    });
-  },
-),
-
-IconButton(
-  icon: const Icon(Icons.logout),
-  tooltip: "Cerrar sesión",
-  onPressed: () {
-    UsuarioSesion.nombre = "";
-    UsuarioSesion.empresa = "";
-    UsuarioSesion.proyecto = "";
-    UsuarioSesion.usuario = "";
-
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const LoginPage(),
-      ),
-      (route) => false,
-    );
-  },
-),
-
-  IconButton(
-    icon: const Icon(Icons.history),
-    onPressed: () {
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (_, __, ___) =>
-              HistorialPage(historial: historial),
-          transitionsBuilder: (_, animation, __, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
-          },
-        ),
-      );
-    },
-  ),
-
-  IconButton(
-    icon: Icon(
-      dark ? Icons.dark_mode : Icons.light_mode,
-    ),
-    onPressed: () {
-      setState(() {
-        isDark = !isDark;
-      });
-    },
-  ),
-
-  IconButton(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+      child: Scaffold(
+        backgroundColor: background,
+        appBar: AppBar(
+          title: const Text("Ensayo"),
+          centerTitle: true,
+          backgroundColor: cardColor,
+          foregroundColor: dark ? Colors.white : Colors.black,
+          elevation: 0,
+          actions: [  
+            IconButton(
+              icon: const Icon(Icons.history),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (_, __, ___) =>
+                        HistorialPage(historial: historial),
+                    transitionsBuilder: (_, animation, __, child) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+            IconButton(
+              icon: Icon(
+                dark ? Icons.dark_mode : Icons.light_mode,
+              ),
+              onPressed: () {
+                setState(() {
+                  isDark = !isDark;
+                });
+              },
+            ),
+                       IconButton(
     icon: const Icon(Icons.logout),
     tooltip: "Cerrar sesión",
     onPressed: () {
@@ -280,61 +229,108 @@ IconButton(
       );
     },
   ),
-],
+], 
+
+        ),
+        body: Center(
+          child: SingleChildScrollView(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeInOut,
+              width: 380,
+              padding: const EdgeInsets.all(20),
+              child: Column(
+  children: [
+
+    Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: dark
+            ? const Color(0xFF1A1C22)
+            : Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(12),
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.easeInOut,
-            width: 380,
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                const Icon(
-                  Icons.science,
-                  size: 40,
-                  color: Colors.blue,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  "Cono y Arena",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w600,
-                    color: dark ? Colors.white : Colors.black,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "👤 ${UsuarioSesion.nombre}",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: dark ? Colors.white : Colors.black,
+            ),
+          ),
+
+          const SizedBox(height: 5),
+
+          Text(
+            "🏢 ${UsuarioSesion.empresa}",
+            style: TextStyle(
+              color: dark ? Colors.white70 : Colors.black87,
+            ),
+          ),
+
+          const SizedBox(height: 5),
+
+          Text(
+            "📁 ${UsuarioSesion.proyecto}",
+            style: TextStyle(
+              color: dark ? Colors.white70 : Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    ),
+
+    const SizedBox(height: 20),
+
+    const Icon(
+      Icons.science,
+      size: 40,
+      color: Colors.blue,
+    ),
+
+    const SizedBox(height: 10),
+
+    Text(
+      "Cono y Arena",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
+                      color: dark ? Colors.white : Colors.black,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      inputField(
-                        "Peso inicial",
-                        Icons.scale,
-                        pesoInicialController,
-                        dark,
-                      ),
-                      inputField(
-                        "Peso restante",
-                        Icons.scale,
-                        pesoFinalController,
-                        dark,
-                      ),
-                      inputField(
-                        "Peso húmedo",
-                        Icons.inventory,
-                        pesoHumedoController,
-                        dark,
-                      ),
-                      inputField(
-                        "Humedad (%)",
-                        Icons.water_drop,
-                        humedadController,
-                        dark,
-                      ),
-                      const SizedBox(height: 10),
+                  const SizedBox(height: 20),
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        inputField(
+                          "Peso inicial",
+                          Icons.scale,
+                          pesoInicialController,
+                          dark,
+                        ),
+                        inputField(
+                          "Peso restante",
+                          Icons.scale,
+                          pesoFinalController,
+                          dark,
+                        ),
+                        inputField(
+                          "Peso húmedo",
+                          Icons.inventory,
+                          pesoHumedoController,
+                          dark,
+                        ),
+                        inputField(
+                          "Humedad (%)",
+                          Icons.water_drop,
+                          humedadController,
+                          dark,
+                        ),
+                        const SizedBox(height: 10),
 
                         // Botón Calcular
                         SizedBox(
@@ -355,15 +351,6 @@ IconButton(
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                               ),
-                              elevation:
-                                  WidgetStateProperty.all(4),
-                              shadowColor:
-                                  WidgetStateProperty.all(
-                                Colors.blue.withValues(alpha: 0.4),
-                              ),
-                              overlayColor:
-                                  WidgetStateProperty.all(
-                                Colors.white.withValues(alpha: 0.1),
                               elevation: MaterialStateProperty.all(4),
                               shadowColor: MaterialStateProperty.all(
                                 Colors.blue.withOpacity(0.4),
@@ -444,8 +431,6 @@ IconButton(
                             borderRadius: BorderRadius.circular(18),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(
-                                    alpha: dark ? 0.2 : 0.05),
                                 color: Colors.black
                                     .withOpacity(dark ? 0.2 : 0.05),
                                 blurRadius: 20,
