@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import '../../domain/entities/datos_entrada_cono_arena.dart';
 import '../../domain/usecases/calcular_ensayo_cono_arena.dart';
+import 'package:civicalc/core/utils/usuario_sesion.dart';
+import 'package:civicalc/features/auth/presentation/pages/login_page.dart';
 
 class ConoArenaPage extends StatefulWidget {
   const ConoArenaPage({super.key});
@@ -212,33 +214,56 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
           foregroundColor: dark ? Colors.white : Colors.black,
           elevation: 0,
           actions: [
-            IconButton(
-              icon: const Icon(Icons.history),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (_, __, ___) =>
-                        HistorialPage(historial: historial),
-                    transitionsBuilder: (_, animation, __, child) {
-                      return FadeTransition(
-                        opacity: animation,
-                        child: child,
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
-            IconButton(
-              icon: Icon(dark ? Icons.dark_mode : Icons.light_mode),
-              onPressed: () {
-                setState(() {
-                  isDark = !isDark;
-                });
-              },
-            ),
-          ],
+  IconButton(
+    icon: const Icon(Icons.history),
+    onPressed: () {
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (_, __, ___) =>
+              HistorialPage(historial: historial),
+          transitionsBuilder: (_, animation, __, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        ),
+      );
+    },
+  ),
+
+  IconButton(
+    icon: Icon(
+      dark ? Icons.dark_mode : Icons.light_mode,
+    ),
+    onPressed: () {
+      setState(() {
+        isDark = !isDark;
+      });
+    },
+  ),
+
+  IconButton(
+    icon: const Icon(Icons.logout),
+    tooltip: "Cerrar sesión",
+    onPressed: () {
+
+      UsuarioSesion.nombre = "";
+      UsuarioSesion.empresa = "";
+      UsuarioSesion.proyecto = "";
+      UsuarioSesion.usuario = "";
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const LoginPage(),
+        ),
+        (route) => false,
+      );
+    },
+  ),
+],
         ),
         body: Center(
           child: SingleChildScrollView(
@@ -247,12 +272,63 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
               curve: Curves.easeInOut,
               width: 380,
               padding: const EdgeInsets.all(20),
+              
               child: Column(
-                children: [
-                  const Icon(Icons.science, size: 40, color: Colors.blue),
-                  const SizedBox(height: 10),
-                  Text(
-                    "Cono y Arena",
+  children: [
+
+    Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: dark
+            ? const Color(0xFF1A1C22)
+            : Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "👤 ${UsuarioSesion.nombre}",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: dark ? Colors.white : Colors.black,
+            ),
+          ),
+
+          const SizedBox(height: 5),
+
+          Text(
+            "🏢 ${UsuarioSesion.empresa}",
+            style: TextStyle(
+              color: dark ? Colors.white70 : Colors.black87,
+            ),
+          ),
+
+          const SizedBox(height: 5),
+
+          Text(
+            "📁 ${UsuarioSesion.proyecto}",
+            style: TextStyle(
+              color: dark ? Colors.white70 : Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    ),
+
+    const SizedBox(height: 20),
+
+    const Icon(
+      Icons.science,
+      size: 40,
+      color: Colors.blue,
+    ),
+
+    const SizedBox(height: 10),
+
+    Text(
+      "Cono y Arena",
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
