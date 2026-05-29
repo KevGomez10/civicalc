@@ -200,46 +200,87 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
               );
             },
           ),
+          
           IconButton(
-            icon: Icon(
-              dark ? Icons.dark_mode : Icons.light_mode,
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
-      child: Scaffold(
-        backgroundColor: background,
-        appBar: AppBar(
-          title: const Text("Ensayo"),
-          centerTitle: true,
-          backgroundColor: cardColor,
-          foregroundColor: dark ? Colors.white : Colors.black,
-          elevation: 0,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.history),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (_, __, ___) =>
-                        HistorialPage(historial: historial),
-                    transitionsBuilder: (_, animation, __, child) {
-                      return FadeTransition(
-                        opacity: animation,
-                        child: child,
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
-            onPressed: () {
-              setState(() {
-                isDark = !isDark;
-              });
-            },
-          ),
-        ],
+  icon: Icon(
+    dark ? Icons.dark_mode : Icons.light_mode,
+  ),
+  onPressed: () {
+    setState(() {
+      isDark = !isDark;
+    });
+  },
+),
+
+IconButton(
+  icon: const Icon(Icons.logout),
+  tooltip: "Cerrar sesión",
+  onPressed: () {
+    UsuarioSesion.nombre = "";
+    UsuarioSesion.empresa = "";
+    UsuarioSesion.proyecto = "";
+    UsuarioSesion.usuario = "";
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const LoginPage(),
+      ),
+      (route) => false,
+    );
+  },
+),
+
+  IconButton(
+    icon: const Icon(Icons.history),
+    onPressed: () {
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (_, __, ___) =>
+              HistorialPage(historial: historial),
+          transitionsBuilder: (_, animation, __, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        ),
+      );
+    },
+  ),
+
+  IconButton(
+    icon: Icon(
+      dark ? Icons.dark_mode : Icons.light_mode,
+    ),
+    onPressed: () {
+      setState(() {
+        isDark = !isDark;
+      });
+    },
+  ),
+
+  IconButton(
+    icon: const Icon(Icons.logout),
+    tooltip: "Cerrar sesión",
+    onPressed: () {
+
+      UsuarioSesion.nombre = "";
+      UsuarioSesion.empresa = "";
+      UsuarioSesion.proyecto = "";
+      UsuarioSesion.usuario = "";
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const LoginPage(),
+        ),
+        (route) => false,
+      );
+    },
+  ),
+],
       ),
       body: Center(
         child: SingleChildScrollView(
