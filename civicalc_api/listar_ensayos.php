@@ -1,11 +1,37 @@
 <?php
+
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
 
 require_once "conexion.php";
 
-$sql = "SELECT * FROM ensayos_cono_arena ORDER BY fecha_registro DESC";
-$result = $conn->query($sql);
+if (!isset($_GET["usuario_id"])) {
+
+    echo json_encode([
+        "success" => false,
+        "message" => "usuario_id no recibido"
+    ]);
+
+    exit;
+}
+
+$usuarioId = intval($_GET["usuario_id"]);
+
+$sql = "SELECT *
+        FROM ensayos_cono_arena
+        WHERE usuario_id = ?
+        ORDER BY fecha_registro DESC";
+
+$stmt = $conn->prepare($sql);
+
+$stmt->bind_param(
+    "i",
+    $usuarioId
+);
+
+$stmt->execute();
+
+$result = $stmt->get_result();
 
 $ensayos = [];
 
@@ -18,5 +44,7 @@ echo json_encode([
     "data" => $ensayos
 ]);
 
+$stmt->close();
 $conn->close();
+
 ?>

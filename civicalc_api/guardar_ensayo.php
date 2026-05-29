@@ -21,16 +21,17 @@ if (!$data) {
 }
 
 $sql = "INSERT INTO ensayos_cono_arena (
-    abscisa, capa, costado,
+    usuario_id, abscisa, capa, costado,
     peso_inicial, peso_final, constante_cono, densidad_arena,
     peso_humedo, humedad,
     arena_usada, arena_hueco, volumen, densidad
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 $stmt = $conn->prepare($sql);
 
 $stmt->bind_param(
-    "sssdddddddddd",
+    "isssdddddddddd",
+    $data["usuario_id"],
     $data["abscisa"],
     $data["capa"],
     $data["costado"],
@@ -52,10 +53,12 @@ if ($stmt->execute()) {
         "message" => "Ensayo guardado correctamente"
     ]);
 } else {
+
     echo json_encode([
         "success" => false,
-        "message" => "Error al guardar el ensayo"
+        "message" => $stmt->error
     ]);
+
 }
 
 $stmt->close();

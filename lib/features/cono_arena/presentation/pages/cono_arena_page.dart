@@ -55,6 +55,7 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
 
       // Guardar en base de datos
       final guardado = await ensayoApiService.guardarEnsayo(
+        usuarioId: UsuarioSesion.id,
         abscisa: datos.abscisa,
         capa: datos.capa,
         costado: datos.costado,
@@ -221,7 +222,7 @@ class _ConoArenaPageState extends State<ConoArenaPage> {
         context,
         PageRouteBuilder(
           pageBuilder: (_, __, ___) =>
-              HistorialPage(historial: historial),
+              const HistorialPage(),
           transitionsBuilder: (_, animation, __, child) {
             return FadeTransition(
               opacity: animation,

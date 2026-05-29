@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
 import '../../../cono_arena/presentation/pages/cono_arena_page.dart';
 import 'register_page.dart';
-import 'package:civicalc/core/usuarios_db.dart';
 import 'package:civicalc/core/utils/usuario_sesion.dart';
 
 class LoginPage extends StatefulWidget {
@@ -14,6 +17,73 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final usuarioController = TextEditingController();
   final passwordController = TextEditingController();
+
+  Future<void> iniciarSesion() async {
+    try {
+      final response = await http.post(
+        Uri.parse(
+          "http://localhost/civicalc_api/login.php",
+        ),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({
+          "usuario": usuarioController.text,
+          "password": passwordController.text,
+        }),
+      );
+
+      print(response.body);
+
+      final data = jsonDecode(response.body);
+
+      if (data["success"] == true) {
+
+        UsuarioSesion.id =
+            data["usuario"]["id"] ?? 0;
+
+        print("ID SESION: ${UsuarioSesion.id}");
+
+        UsuarioSesion.nombre =
+            data["usuario"]["nombre"] ?? "";
+
+        UsuarioSesion.empresa =
+            data["usuario"]["empresa"] ?? "";
+
+        UsuarioSesion.proyecto =
+            data["usuario"]["proyecto"] ?? "";
+
+        UsuarioSesion.usuario =
+            data["usuario"]["usuario"] ?? "";
+
+        if (!mounted) return;
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const ConoArenaPage(),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              data["message"] ??
+                  "Usuario o contraseña incorrectos",
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Error de conexión: $e",
+          ),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,53 +115,7 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 30),
 
             ElevatedButton(
-              onPressed: () {
-
-                final usuarioEncontrado =
-                    UsuariosDB.usuarios.firstWhere(
-
-                  (u) =>
-                      u["usuario"] == usuarioController.text &&
-                      u["password"] == passwordController.text,
-
-                  orElse: () => {},
-
-                );
-
-                if (usuarioEncontrado.isNotEmpty) {
-
-                  UsuarioSesion.nombre =
-                      usuarioEncontrado["nombre"] ?? "";
-
-                  UsuarioSesion.empresa =
-                      usuarioEncontrado["empresa"] ?? "";
-
-                  UsuarioSesion.proyecto =
-                      usuarioEncontrado["proyecto"] ?? "";
-
-                  UsuarioSesion.usuario =
-                      usuarioEncontrado["usuario"] ?? "";
-
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ConoArenaPage(),
-                    ),
-                  );
-
-                } else {
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        "Usuario o contraseña incorrectos",
-                      ),
-                    ),
-                  );
-
-                }
-
-              },
+              onPressed: iniciarSesion,
               child: const Text("Ingresar"),
             ),
 
@@ -99,14 +123,12 @@ class _LoginPageState extends State<LoginPage> {
 
             OutlinedButton(
               onPressed: () {
-
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => const RegisterPage(),
                   ),
                 );
-
               },
               child: const Text("Crear cuenta"),
             ),

@@ -1,5 +1,6 @@
-import 'package:civicalc/core/usuarios_db.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -123,27 +124,73 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: 30),
 
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
 
-                  if (_formKey.currentState!.validate()) {
+  if (!_formKey.currentState!.validate()) {
+    return;
+  }
 
-                    UsuariosDB.usuarios.add({
-                      "nombre": nombreController.text,
-                      "empresa": empresaController.text,
-                      "proyecto": proyectoController.text,
-                      "usuario": usuarioController.text,
-                      "password": passwordController.text,
-                    });
+  try {
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Cuenta creada correctamente"),
-                      ),
-                    );
+    final response = await http.post(
+      Uri.parse(
+        "http://localhost/civicalc_api/registrar_usuario.php",
+      ),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({
+        "nombre": nombreController.text,
+        "empresa": empresaController.text,
+        "proyecto": proyectoController.text,
+        "usuario": usuarioController.text,
+        "password": passwordController.text,
+      }),
+    );
 
-                    Navigator.pop(context);
-                  }
-                },
+    final data = jsonDecode(response.body);
+
+    if (data["success"] == true) {
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Cuenta creada correctamente",
+          ),
+        ),
+      );
+
+      Navigator.pop(context);
+
+    } else {
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            data["message"] ?? "Error al registrar",
+          ),
+        ),
+      );
+
+    }
+
+  } catch (e) {
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          "Error de conexión: $e",
+        ),
+      ),
+    );
+
+  }
+
+},
                 child: const Text("Crear cuenta"),
               ),
             ],
