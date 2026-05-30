@@ -23,13 +23,27 @@ cargarEnsayos();
 }
 
 Future<void> cargarEnsayos() async {
-final data = await api.obtenerEnsayos();
 
-setState(() {
-  ensayos = data;
-  cargando = false;
-});
+  try {
 
+    final data = await api.obtenerEnsayos();
+
+    print(data);
+
+    setState(() {
+      ensayos = data;
+      cargando = false;
+    });
+
+  } catch (e) {
+
+    print("ERROR HISTORIAL: $e");
+
+    setState(() {
+      cargando = false;
+    });
+
+  }
 
 }
 

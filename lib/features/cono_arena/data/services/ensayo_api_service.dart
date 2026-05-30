@@ -58,22 +58,22 @@ return false;
 
 Future<List<dynamic>> obtenerEnsayos() async {
 
-final url = Uri.parse(
-  "$baseUrl/listar_ensayos.php?usuario_id=${UsuarioSesion.id}",
-);
+  final url = Uri.parse(
+    "$baseUrl/listar_ensayos.php?usuario_id=${UsuarioSesion.id}",
+  );
 
-final response = await http.get(url);
+  final response = await http.get(url);
 
-if (response.statusCode == 200) {
-  final data = jsonDecode(response.body);
+  print(response.body);
 
-  if (data["success"] == true) {
-    return data["data"];
+  if (response.statusCode == 200) {
+
+    final data = jsonDecode(response.body);
+
+    return data;
   }
-}
 
-return [];
-
+  return [];
 }
 
 Future<bool> eliminarEnsayo(int id) async {
